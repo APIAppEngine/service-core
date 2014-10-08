@@ -2,15 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>com.mikenimer.apiserver</groupId>
-        <artifactId>apiserver</artifactId>
+        <groupId>com.mikenimer.apiappengine</groupId>
+        <artifactId>APIAppEngine</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../APIAppEngine/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mikenimer.apiserver</groupId>
+    <groupId>com.mikenimer.apiappengine</groupId>
     <artifactId>service-core</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -23,10 +23,9 @@
         <!-- Grid Gain -->
         <dependency>
             <groupId>org.gridgain</groupId>
-            <artifactId>gridgain-platform</artifactId>
-            <version>6.1.5</version>
+            <artifactId>gridgain-core</artifactId>
+            <version>6.5.0</version>
             <exclusions>
-
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-continuation</artifactId>

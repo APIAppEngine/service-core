@@ -52,5 +52,5 @@ public class ApiServerConstants
 
 
     //Grid Constants
-    public static final String GRID_NAME = "ApiServer";
+    public static final String GRID_NAME = "ApiAppEngine";
 }
