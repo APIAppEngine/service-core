@@ -80,7 +80,14 @@ public enum MimeType
 
     public static MimeType getMimeType(String fileName)
     {
-        String extension = fileName.substring(fileName.lastIndexOf('.')+1);
+        int pos = fileName.lastIndexOf('.');
+        if( pos == -1 ){
+            pos = fileName.lastIndexOf('/');
+        }else if( pos == -1 ){
+            pos = 0;
+        }
+
+        String extension = fileName.substring(pos+1);
 
         for (MimeType mimeType : values()) {
             if( mimeType.getExtension().equalsIgnoreCase(extension) || mimeType.contentType.equalsIgnoreCase(extension) )

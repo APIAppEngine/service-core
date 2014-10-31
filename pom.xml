@@ -17,9 +17,17 @@
     <name>service-core</name>
     <url>http://maven.apache.org</url>
 
+
+    <developers>
+        <developer>
+            <id>mike</id>
+            <name>Mike Nimer</name>
+            <email>mnimer@gmail.com</email>
+        </developer>
+    </developers>
+
+
     <dependencies>
-
-
         <!-- Grid Gain -->
         <dependency>
             <groupId>org.gridgain</groupId>
