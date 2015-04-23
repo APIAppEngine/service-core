@@ -174,10 +174,10 @@ public class ResponseEntityHelper
         {
             if (!returnAsBase64)
             {
-                return new ResponseEntity<byte[]>((byte[]) bytes, headers, HttpStatus.OK);
+                return new ResponseEntity<>( bytes, headers, HttpStatus.OK);
             } else
             {
-                return new ResponseEntity<byte[]>(Base64.encodeBase64((byte[]) bytes), headers, HttpStatus.OK);
+                return new ResponseEntity<>(Base64.encodeBase64(bytes), headers, HttpStatus.OK);
             }
         }
 

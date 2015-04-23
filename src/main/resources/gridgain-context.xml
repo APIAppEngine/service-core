@@ -22,7 +22,7 @@
 
 
 
-    <bean id="grid.cfg" scope="singleton" class="org.gridgain.grid.GridConfiguration">
+    <bean id="grid.cfg" scope="singleton" class="org.apache.ignite.configuration.IgniteConfiguration">
         <!-- Set to local host address just for examples. -->
         <!--property name="localHost" value="${grid.localaddr}"/-->
 
@@ -41,7 +41,7 @@
 
 
         <property name="marshaller">
-            <bean class="org.gridgain.grid.marshaller.optimized.GridOptimizedMarshaller">
+            <bean class="org.apache.ignite.marshaller.optimized.OptimizedMarshaller">
                 <!-- Set to false to allow non-serializable objects in examples, default is true. -->
                 <property name="requireSerializable" value="false"/>
             </bean>
@@ -68,13 +68,13 @@
 
         <!-- Explicitly configure TCP discovery SPI to provide list of initial nodes. -->
         <property name="discoverySpi">
-            <bean class="org.gridgain.grid.spi.discovery.tcp.GridTcpDiscoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
                 <!--property name="localAddress" value="${grid.localaddr}"/-->
                 <!--property name="heartbeatFrequency" value="2000"/-->
 
                 <property name="ipFinder">
                     <!-- Uncomment multicast IP finder to enable multicast-based discovery of initial nodes. -->
-                    <bean class="org.gridgain.grid.spi.discovery.tcp.ipfinder.multicast.GridTcpDiscoveryMulticastIpFinder"/>
+                    <!--bean class="org.gridgain.grid.spi.discovery.tcp.ipfinder.multicast.GridTcpDiscoveryMulticastIpFinder"/-->
 
                     <!--
                     <bean class="org.gridgain.grid.spi.discovery.tcp.ipfinder.jdbc.GridTcpDiscoveryJdbcIpFinder">
@@ -83,18 +83,14 @@
                     -->
 
 
-                    <!--
-                    <bean class="org.gridgain.grid.spi.discovery.tcp.ipfinder.vm.GridTcpDiscoveryVmIpFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
                         <property name="shared" value="true"/>
                         <property name="addresses">
                             <list>
-                                <value>${grid.ip1}:47500..47509</value>
-                                <value>${grid.ip2}:47500..47509</value>
-                                <value>${grid.ip3}:47500..47509</value>
+                                <value>127.0.0.1:47500..47509</value>
                             </list>
                         </property>
                     </bean>
-                    -->
 
                 </property>
             </bean>
@@ -121,7 +117,7 @@
 
 
         <property name="collisionSpi">
-            <bean class="org.gridgain.grid.spi.collision.jobstealing.GridJobStealingCollisionSpi">
+            <bean class="org.apache.ignite.spi.collision.jobstealing.JobStealingCollisionSpi">
                 <property name="activeJobsThreshold" value="3"/>
                 <property name="waitJobsThreshold" value="0"/>
                 <property name="maximumStealingAttempts" value="10"/>
@@ -132,7 +128,7 @@
 
 
         <property name="failoverSpi">
-            <bean class="org.gridgain.grid.spi.failover.always.GridAlwaysFailoverSpi">
+            <bean class="org.apache.ignite.spi.failover.always.AlwaysFailoverSpi">
                 <property name="maximumFailoverAttempts" value="20"/>
             </bean>
         </property>
