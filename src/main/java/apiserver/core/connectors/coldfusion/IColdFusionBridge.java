@@ -19,6 +19,8 @@ package apiserver.core.connectors.coldfusion;
  along with the ApiServer Project.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
+import apiserver.exceptions.ColdFusionException;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ import java.util.Map;
 public interface IColdFusionBridge
 {
 
-    public Object invoke(String cfcPath, String method, Map<String, Object> methodArgs_) throws Throwable;
+    public byte[] invokeFilePost(String cfcPath, String method, Map<String, Object> methodArgs_) throws ColdFusionException;
 
     public Map<String, Object> extractPropertiesFromPayload(Object props)  throws IOException;
 

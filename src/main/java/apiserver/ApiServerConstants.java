@@ -41,6 +41,7 @@ public class ApiServerConstants
     // Controller arguments
     public final static String ANGLE = "angle";
     public final static String COLOR = "color";
+    public final static String FORMAT = "format";
     public final static String THICKNESS = "thickness";
     public static final Object INTERPOLATION = "interpolation";
     public static final Object SCALE_TO_FIT = "scaleToFit";

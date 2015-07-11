@@ -60,7 +60,7 @@ public class ObjectCFCService
             Map<String, Object> methodArgs = coldFusionBridge.extractPropertiesFromPayload(props);
 
             // execute
-            Object cfcResult = coldFusionBridge.invoke(cfcPath, cfcMethod, methodArgs);
+            byte[] cfcResult = (byte[])coldFusionBridge.invokeFilePost(cfcPath, cfcMethod, methodArgs);
             props.setResult(cfcResult);
 
             return message;

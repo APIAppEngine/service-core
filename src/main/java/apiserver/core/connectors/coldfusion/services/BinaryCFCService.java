@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 /**
  * Used to invoke CFC that returns a binary file
  * Created by mnimer on 4/16/14.
@@ -60,10 +58,10 @@ public class BinaryCFCService
         try
         {
             // extract properties
-            Map<String, Object> methodArgs = coldFusionBridge.extractPropertiesFromPayload(props);
+            //Map<String, Object> methodArgs = coldFusionBridge.extractPropertiesFromPayload(props);
 
             // execute
-            byte[] cfcResult = (byte[])coldFusionBridge.invoke(cfcPath, cfcMethod, methodArgs);
+            byte[] cfcResult = (byte[])coldFusionBridge.invokeFilePost(cfcPath, cfcMethod, props.toMap());
             props.setResult(cfcResult);
 
             return message;

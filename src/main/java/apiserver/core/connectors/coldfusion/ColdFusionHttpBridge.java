@@ -33,12 +33,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,48 +62,25 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
 
     HashMap cfcPathCache = new HashMap();
 
-    @Value("${CFHost}")
-    private String ip;
-    @Value("${CFPort}")
-    private int port;
-    @Value("${CFContextRoot}")
-    private String contextRoot;
-    @Value("${CFPath}")
-    private String cfcPath;
+    private @Value("${cf.host}") String cfHost;
+    private @Value("${cf.port}") Integer cfPort;
+    private @Value("${cf.protocol}") String cfProtocol;
+    private @Value("${cf.path}") String cfPath;
+    private @Value("${cf.defaultTimeout}") Integer defaultTimeout;
 
 
-    public void setIp(String ip)
+
+
+
+    public byte[] invokeFilePost(String cfcPath_, String method_, Map<String,Object> methodArgs_) throws ColdFusionException
     {
-        this.ip = ip;
-    }
+        try(CloseableHttpClient httpClient = HttpClients.createDefault()){
 
+            HttpHost host = new HttpHost(cfHost, cfPort, cfProtocol);
+            HttpPost method = new HttpPost( validatePath(cfPath) +cfcPath_);
 
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
-
-
-    public void setContextRoot(String contextRoot)
-    {
-        this.contextRoot = contextRoot;
-    }
-
-
-    public void setCfcPath(String cfcPath)
-    {
-        this.cfcPath = cfcPath;
-    }
-
-
-    public Object invoke(String cfcPath_, String method_, Map<String,Object> methodArgs_) throws Throwable
-    {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        try {
-            HttpHost host = new HttpHost(ip, port, "http");
-            HttpPost method = new HttpPost(validatePath(contextRoot +cfcPath) +cfcPath_);
-
-            MultipartEntity me = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            MultipartEntityBuilder me = MultipartEntityBuilder.create();
+            me.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
             if( methodArgs_ != null )
             {
@@ -117,56 +92,51 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
                     {
                         if (obj instanceof String)
                         {
-                            me.addPart(s, new StringBody((String) obj, "text/plain", Charset.forName("UTF-8")));
+                            me.addTextBody( s, (String)obj );
                         }
                         else if (obj instanceof Integer)
                         {
-                            me.addPart(s, new StringBody(((Integer) obj).toString(), "text/plain", Charset.forName("UTF-8")));
+                            me.addTextBody( s, ((Integer)obj).toString() );
                         }
                         else if (obj instanceof File)
                         {
-                            me.addPart(s, new FileBody((File) obj));
+                            me.addBinaryBody(s, (File) obj);
                         }
                         else if (obj instanceof IDocument)
                         {
-                            me.addPart(s, new FileBody(((IDocument) obj).getFile()));// new StringBody( Base64.encode( ((IDocument) obj).getFileBytes() )));
-                            me.addPart("name",  new StringBody( ((IDocument) obj).getFileName() ) );
-                            me.addPart("contentType",  new StringBody( ((IDocument) obj).getContentType().contentType ) );
-                            //me.addPart(s, new FileBody(((Document) obj).getFile()));
-                            //me.addPart(s, new ByteArrayBody( ((Document) obj).getFileBytes(), ((Document) obj).getContentType().contentType, ((Document) obj).getFileName() ));
+                            me.addBinaryBody(s, ((IDocument) obj).getFile() );
+                            me.addTextBody( "name", ((IDocument)obj).getFileName() );
+                            me.addTextBody("contentType", ((IDocument) obj).getContentType().contentType );
                         }
                         else if (obj instanceof BufferedImage)
                         {
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            ImageIO.write((BufferedImage)obj, "jpg", baos);
 
-                            me.addPart(s, new ByteArrayBody( baos.toByteArray(), ((MimeType)methodArgs_.get(ApiServerConstants.CONTENT_TYPE)).getExtension(),  (String)methodArgs_.get(ApiServerConstants.FILE_NAME) ));
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write((BufferedImage) obj, "jpg", baos);
+
+                            String _fileName = (String) methodArgs_.get(ApiServerConstants.FILE_NAME);
+                            String _mimeType = ((MimeType) methodArgs_.get(ApiServerConstants.CONTENT_TYPE)).getExtension();
+                            ContentType _contentType = ContentType.create(_mimeType);
+                            me.addBinaryBody(s, baos.toByteArray(), _contentType, _fileName);
                         }
                         else if (obj instanceof byte[])
                         {
-                            me.addPart(s, new ByteArrayBody((byte[]) obj, (String) methodArgs_.get("name")));
+                            me.addBinaryBody(s, (byte[]) obj);
                         }
                         else if (obj instanceof Map)
                         {
                             ObjectMapper mapper = new ObjectMapper();
                             String _json = mapper.writeValueAsString(obj);
 
-                            me.addPart(s, new StringBody(_json) );
+                            me.addTextBody(s, _json);
                         }
                     }
                 }
             }
 
-            method.setEntity(me);
+            HttpEntity httpEntity = me.build();
+            method.setEntity(httpEntity);
 
-            //ArrayList<NameValuePair> postParameters = new ArrayList<NameValuePair>();
-            //postParameters.add(new BasicNameValuePair("cfcPath", cfcPath_));
-            //postParameters.add(new BasicNameValuePair("cfcMethod", method_));
-            //method.setEntity(new UrlEncodedFormEntity(postParameters));
-
-
-            //ResponseHandler responseHandler = new BasicResponseHandler();
-            //Object debug = httpClient.execute(host, method, responseHandler);
             HttpResponse response = httpClient.execute(host, method);//, responseHandler);
 
             // Examine the response status
@@ -188,16 +158,11 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
         catch (Exception ex)
         {
             ex.printStackTrace();
-            throw new ColdFusionException("Invalid Result");
-        }
-        finally
-        {
-            // When HttpClient instance is no longer needed,
-            // shut down the connection manager to ensure
-            // immediate deallocation of all system resources
-            httpClient.getConnectionManager().shutdown();
+            throw new RuntimeException(ex);
         }
     }
+
+
 
     protected Object deSerializeJson(InputStream result) throws IOException, JsonParseException
     {

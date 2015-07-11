@@ -1,18 +1,11 @@
 package apiserver.grid;
 
 import org.apache.ignite.Ignite;
-import org.apache.ignite.Ignition;
-import org.apache.ignite.configuration.IgniteConfiguration;
-import org.apache.ignite.internal.client.marshaller.optimized.GridClientOptimizedMarshaller;
-import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.sharedfs.TcpDiscoverySharedFsIpFinder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by mnimer on 6/11/14.
@@ -26,14 +19,17 @@ public class GridManager implements Serializable
 
     @Bean
     public Ignite grid(){
+        return null;
+        /**
         if( grid == null ) {
             grid = Ignition.start(getGridConfiguration());
         }
         return grid;
+         **/
     }
 
 
-
+    /**
     private IgniteConfiguration getGridConfiguration() {
         Map<String, String> userAttr = new HashMap<String, String>();
         userAttr.put("ROLE", "ApiAppEngine");
@@ -61,4 +57,5 @@ public class GridManager implements Serializable
         //gc.setMarshaller(gom);
         return gc;
     }
+     **/
 }

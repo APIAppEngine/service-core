@@ -30,6 +30,7 @@
     <dependencies>
     </dependencies>
 
+
     <build>
         <finalName>service-core</finalName>
 
