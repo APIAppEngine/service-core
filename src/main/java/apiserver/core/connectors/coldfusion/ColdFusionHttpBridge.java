@@ -56,7 +56,7 @@ import java.util.Map;
  * User: mikenimer
  * Date: 3/24/13
  */
-@Component
+@Component(value = "ColdFusionHttpBridge")
 public class ColdFusionHttpBridge implements IColdFusionBridge
 {
 

@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Configuration
 public class GridManager implements Serializable
 {
+
     @Value("${tmpPath}")
     private String tmpPath;
     private static Ignite grid = null;

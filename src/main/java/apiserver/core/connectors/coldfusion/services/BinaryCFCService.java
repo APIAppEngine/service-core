@@ -3,6 +3,7 @@ package apiserver.core.connectors.coldfusion.services;
 import apiserver.core.connectors.coldfusion.IColdFusionBridge;
 import apiserver.exceptions.ColdFusionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class BinaryCFCService
 {
 
+    @Qualifier("ColdFusionHttpBridge")
     @Autowired
     public IColdFusionBridge coldFusionBridge;
 
