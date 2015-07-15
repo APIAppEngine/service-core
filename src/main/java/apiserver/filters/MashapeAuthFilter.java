@@ -1,5 +1,7 @@
 package apiserver.filters;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,15 +19,27 @@ import java.io.IOException;
  * Created by mnimer on 10/17/14.
  * @see http://kb.vmware.com/selfservice/microsites/search.do?language=en_US&cmd=displayKC&externalId=2005447
  */
-@Component
+
 public class MashapeAuthFilter implements Filter
 {
+    private static final Log log = LogFactory.getLog(MashapeAuthFilter.class);
 
     @Value("${mashape.key}")
     private String mashapeKey = null;
 
     private final String MASHAPE_REQUEST = "X-Mashape-Proxy-Secret";
 
+
+    public void setMashapeKey(String mashapeKey)
+    {
+        this.mashapeKey = mashapeKey;
+    }
+
+
+    @Override public void init(FilterConfig filterConfig) throws ServletException
+    {
+        filterConfig.getServletContext();
+    }
 
 
     @Override public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException
@@ -44,17 +58,11 @@ public class MashapeAuthFilter implements Filter
                 if (apiKey.equalsIgnoreCase(mashapeKey)) {
                     filterChain.doFilter(servletRequest, servletResponse);
                 } else {
+                    log.debug("Error authenticating token: " +apiKey);
                     ((HttpServletResponse) servletResponse).sendError(403);
                 }
             }
         }
-    }
-
-
-
-    @Override public void init(FilterConfig filterConfig) throws ServletException
-    {
-        //filterConfig.getServletContext();
     }
 
 

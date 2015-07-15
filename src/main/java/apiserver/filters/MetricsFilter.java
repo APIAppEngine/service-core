@@ -1,5 +1,7 @@
 package apiserver.filters;
 
+import org.springframework.stereotype.Component;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -16,6 +18,7 @@ import java.util.Map;
 /**
  * Created by mnimer on 11/5/14.
  */
+@Component
 public class MetricsFilter implements Filter
 {
 
@@ -52,7 +55,7 @@ public class MetricsFilter implements Filter
         metric.put("start-time", startT);
         metric.put("end-time", System.currentTimeMillis());
         metric.put("response-size", ((HttpServletResponse) response).getHeader("Content-Length"));
-        ((HttpServletResponse) response).setHeader("apiappengine-response-time", endT - startT +"ms");
+        ((HttpServletResponse) response).addHeader("apiappengine-response-time", endT - startT + "ms");
         //Todo save object
     }
 
