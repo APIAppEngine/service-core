@@ -52,8 +52,8 @@ public class MashapeAuthFilter implements Filter
 
             String apiKey = ((HttpServletRequest) servletRequest).getHeader(MASHAPE_REQUEST);
             if (apiKey == null) {
-                filterChain.doFilter(servletRequest, servletResponse);
-                //((HttpServletResponse) servletResponse).sendError(403);
+                //filterChain.doFilter(servletRequest, servletResponse);
+                ((HttpServletResponse) servletResponse).sendError(403);
             } else {
                 if (apiKey.equalsIgnoreCase(mashapeKey)) {
                     filterChain.doFilter(servletRequest, servletResponse);
