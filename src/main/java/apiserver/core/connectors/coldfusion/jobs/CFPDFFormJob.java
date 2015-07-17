@@ -1,5 +1,7 @@
 package apiserver.core.connectors.coldfusion.jobs;
 
+import apiserver.jobs.GetDocumentJob;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +9,7 @@ import java.util.Map;
 /**
  * Created by mnimer on 4/13/14.
  */
-public class CFPDFFormJob implements Serializable
+public class CFPDFFormJob extends GetDocumentJob implements Serializable
 {
     private static final String OVERWRITEDATA = "overwriteDate";
     private static final String PASSWORD = "password";

@@ -39,6 +39,8 @@ public class ApiServerConstants
     public static String HEIGHT = "height";
 
     // Controller arguments
+    public final static String ACTION = "action";
+    public final static String OPTIONS = "options";
     public final static String ANGLE = "angle";
     public final static String COLOR = "color";
     public final static String FORMAT = "format";

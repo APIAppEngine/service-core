@@ -24,11 +24,13 @@ import apiserver.MimeType;
 import apiserver.core.model.IDocument;
 import apiserver.core.model.IDocumentJob;
 import apiserver.exceptions.ColdFusionException;
+import apiserver.jobs.IProxyJob;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -39,7 +41,11 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -59,20 +65,68 @@ import java.util.Map;
 @Component(value = "ColdFusionHttpBridge")
 public class ColdFusionHttpBridge implements IColdFusionBridge
 {
-
-    HashMap cfcPathCache = new HashMap();
-
     private @Value("${cf.host}") String cfHost;
     private @Value("${cf.port}") Integer cfPort;
     private @Value("${cf.protocol}") String cfProtocol;
     private @Value("${cf.path}") String cfPath;
     private @Value("${cf.defaultTimeout}") Integer defaultTimeout;
 
+    private String cfcMethod = null;
+    private String cfcPath = null;
+
+
+
+    public String getCfcMethod()
+    {
+        return cfcMethod;
+    }
+
+    public void setCfcMethod(String cfcMethod)
+    {
+        this.cfcMethod = cfcMethod;
+    }
+
+
+    public String getCfcPath()
+    {
+        return cfcPath;
+    }
+
+    public void setCfcPath(String cfcPath)
+    {
+        this.cfcPath = cfcPath;
+    }
+
+
+
+    public Object execute(Message<?> message) throws ColdFusionException
+    {
+
+        IProxyJob props = (IProxyJob)message.getPayload();
+
+        try
+        {
+            // extract properties
+            //Map<String, Object> methodArgs = coldFusionBridge.extractPropertiesFromPayload(props);
+
+            // execute
+            ResponseEntity cfResults = invokeFilePost(cfcPath, cfcMethod, props.getArguments());
+
+            props.setHttpResponse(cfResults);
+
+            return message;
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace(); //todo use logging library
+            throw new RuntimeException(e);
+        }
+    }
 
 
 
 
-    public byte[] invokeFilePost(String cfcPath_, String method_, Map<String,Object> methodArgs_) throws ColdFusionException
+    public ResponseEntity invokeFilePost(String cfcPath_, String method_, Map<String,Object> methodArgs_) throws ColdFusionException
     {
         try(CloseableHttpClient httpClient = HttpClients.createDefault()){
 
@@ -148,12 +202,23 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
                 if (entity != null) {
                     InputStream inputStream = entity.getContent();
                     //return inputStream;
-                    return IOUtils.toByteArray(inputStream);
+
+                    byte[] _body = IOUtils.toByteArray(inputStream);
+
+                    MultiValueMap _headers = new LinkedMultiValueMap();
+                    for (Header header : response.getAllHeaders()) {
+                        _headers.add(header.getName(), header.getValue());
+                    }
+
+                    return new ResponseEntity(_body, _headers, org.springframework.http.HttpStatus.OK);
                     //Map json = (Map)deSerializeJson(inputStream);
                     //return json;
                 }
             }
-            throw new ColdFusionException(response.getStatusLine().toString());
+
+            MultiValueMap _headers = new LinkedMultiValueMap();
+            _headers.add("Content-Type", "text/plain");
+            return new ResponseEntity(response.getStatusLine().toString(), _headers, org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
         }
         catch (Exception ex)
         {

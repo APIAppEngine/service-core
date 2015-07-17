@@ -6,7 +6,7 @@ import java.util.Collection;
  * Job that invokes a CFC that will return a Binary File
  * Created by mnimer on 4/17/14.
  */
-public interface CollectionResult
+public interface ICollectionResult
 {
     Collection getResult();
     void setResult(Collection bytes);

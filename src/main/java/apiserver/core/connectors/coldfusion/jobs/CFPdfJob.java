@@ -1,7 +1,11 @@
 package apiserver.core.connectors.coldfusion.jobs;
 
 
+import apiserver.ApiServerConstants;
 import apiserver.core.model.IDocument;
+import apiserver.jobs.GetDocumentJob;
+import apiserver.jobs.IProxyJob;
+import org.springframework.http.ResponseEntity;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,7 +14,7 @@ import java.util.Map;
 /**
  * Created by mnimer on 4/13/14.
  */
-public class CFPdfJob implements Serializable
+public class CFPdfJob extends GetDocumentJob implements IProxyJob, Serializable
 {
 
     private static final String ADDQUADS = "addQuads";
@@ -61,8 +65,38 @@ public class CFPdfJob implements Serializable
     private static final Object IMAGEPREFIX = "imagePrefix";
 
 
+    /**
+     * Supported encryptio
+     */
+    public enum Encryption
+    {
+        RC4_40,
+        RC4_128,
+        RC4_128M,
+        AES_128,
+        NONE
+    }
+
+
+    private String action;
+
     // Map of options to pass through, will be set with an AttributeCollection argument.
     private Map options = new HashMap();
+
+    // store the http response returned from CF (good or bad)
+    private ResponseEntity httpResponse;
+
+
+    public String getAction()
+    {
+        return action;
+    }
+
+
+    public void setAction(String action)
+    {
+        this.action = action;
+    }
 
 
     /**
@@ -358,4 +392,24 @@ public class CFPdfJob implements Serializable
     }
 
 
+    public ResponseEntity getHttpResponse()
+    {
+        return httpResponse;
+    }
+
+
+    public void setHttpResponse(ResponseEntity httpResponse)
+    {
+        this.httpResponse = httpResponse;
+    }
+
+
+    @Override public Map getArguments()
+    {
+        Map args = new HashMap();
+        args.put(ApiServerConstants.ACTION, this.getAction() );
+        args.put(ApiServerConstants.FILE, getDocument() );
+        args.put(ApiServerConstants.OPTIONS, getOptions());
+        return args;
+    }
 }

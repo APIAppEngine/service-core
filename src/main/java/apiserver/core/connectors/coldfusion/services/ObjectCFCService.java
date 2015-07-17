@@ -3,6 +3,7 @@ package apiserver.core.connectors.coldfusion.services;
 import apiserver.core.connectors.coldfusion.IColdFusionBridge;
 import apiserver.exceptions.ColdFusionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
 
 import java.util.Map;
@@ -52,7 +53,7 @@ public class ObjectCFCService
     public Object execute(Message<?> message) throws ColdFusionException
     {
 
-        ObjectResult props = (ObjectResult)message.getPayload();
+        IObjectResult props = (IObjectResult)message.getPayload();
 
         try
         {
@@ -60,8 +61,9 @@ public class ObjectCFCService
             Map<String, Object> methodArgs = coldFusionBridge.extractPropertiesFromPayload(props);
 
             // execute
-            byte[] cfcResult = (byte[])coldFusionBridge.invokeFilePost(cfcPath, cfcMethod, methodArgs);
-            props.setResult(cfcResult);
+            ResponseEntity<byte[]> cfResult = coldFusionBridge.invokeFilePost(cfcPath, cfcMethod, methodArgs);
+            props.setResult(cfResult.getBody());
+
 
             return message;
         }

@@ -20,6 +20,7 @@ package apiserver.core.connectors.coldfusion;
  ******************************************************************************/
 
 import apiserver.exceptions.ColdFusionException;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Map;
 public interface IColdFusionBridge
 {
 
-    public byte[] invokeFilePost(String cfcPath, String method, Map<String, Object> methodArgs_) throws ColdFusionException;
+    public ResponseEntity invokeFilePost(String cfcPath, String method, Map<String, Object> methodArgs_) throws ColdFusionException;
 
     public Map<String, Object> extractPropertiesFromPayload(Object props)  throws IOException;
 
