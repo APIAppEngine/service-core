@@ -25,6 +25,7 @@ import apiserver.core.model.IDocument;
 import apiserver.core.model.IDocumentJob;
 import apiserver.exceptions.ColdFusionException;
 import apiserver.jobs.IProxyJob;
+import apiserver.model.Document;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -159,8 +160,18 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
                         else if (obj instanceof IDocument)
                         {
                             me.addBinaryBody(s, ((IDocument) obj).getFile() );
-                            me.addTextBody( "name", ((IDocument)obj).getFileName() );
-                            me.addTextBody("contentType", ((IDocument) obj).getContentType().contentType );
+                            //me.addTextBody( "name", ((IDocument)obj).getFileName() );
+                            //me.addTextBody("contentType", ((IDocument) obj).getContentType().contentType );
+                        }
+                        else if (obj instanceof IDocument[])
+                        {
+                            for (int i = 0; i < ((IDocument[]) obj).length; i++) {
+                                IDocument iDocument = ((IDocument[]) obj)[i];
+                                me.addBinaryBody(s, iDocument.getFile() );
+                                //me.addTextBody("name", iDocument.getFileName() );
+                                //me.addTextBody("contentType", iDocument.getContentType().contentType );
+                            }
+
                         }
                         else if (obj instanceof BufferedImage)
                         {
@@ -207,7 +218,26 @@ public class ColdFusionHttpBridge implements IColdFusionBridge
 
                     MultiValueMap _headers = new LinkedMultiValueMap();
                     for (Header header : response.getAllHeaders()) {
-                        _headers.add(header.getName(), header.getValue());
+                        if(  header.getName().equalsIgnoreCase("content-length") ) {
+                            _headers.add(header.getName(), header.getValue());
+                        }
+                        else if( header.getName().equalsIgnoreCase("content-type")  ) {
+                            _headers.add(header.getName(), header.getValue());
+
+                            // special condition to add zip to the file name.
+                            if( header.getValue().indexOf("text/") > -1 ) {
+                                //add nothing extra
+                            }else if( header.getValue().indexOf("zip") > -1 ) {
+                                if( methodArgs_.get("file") != null ) {
+                                    String _fileName = ((Document)methodArgs_.get("file")).getFileName();
+                                    _headers.add("Content-Disposition", "attachment; filename=\"" +_fileName +".zip\"");
+                                }
+                            }else if( methodArgs_.get("file") != null ) {
+                                String _fileName = ((Document)methodArgs_.get("file")).getFileName();
+                                _headers.add("Content-Disposition", "attachment; filename=\"" +_fileName +"\"");
+                            }
+
+                        }
                     }
 
                     return new ResponseEntity(_body, _headers, org.springframework.http.HttpStatus.OK);

@@ -32,6 +32,7 @@ public class ApiServerConstants
     public static String IMAGE = "image";
 
     public final static String FILE = "file";
+    public final static String FILES = "files";
     public final static String FILE_NAME = "fileName";
     public final static String CONTENT_TYPE = "content-type";
 
